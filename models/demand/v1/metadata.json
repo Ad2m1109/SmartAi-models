@@ -1,0 +1,9 @@
+{
+    "version": "v1",
+    "type": "demand",
+    "training_date": "2026-03-22T09:28:41.383838",
+    "metrics": {
+        "mape": 0.3973323342824035
+    },
+    "path": "/home/ademyoussfi/Desktop/Projects/smartai-models/models/demand/v1/model.joblib"
+}

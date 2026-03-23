@@ -1,0 +1,15 @@
+{
+    "version": "v4",
+    "type": "global_comparative_price",
+    "training_date": "2026-03-23T11:15:29.107971",
+    "metrics": {
+        "records": 200,
+        "train_size": 160,
+        "test_size": 40,
+        "mae": 7.65,
+        "r2_score": 0.9995,
+        "categories": 6,
+        "locations": 5
+    },
+    "path": "/home/ademyoussfi/Desktop/Projects/smartai-models/models/global_comparative_price/v4/model.joblib"
+}

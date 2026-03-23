@@ -1,0 +1,9 @@
+{
+    "version": "v1",
+    "type": "demand_prod_002",
+    "training_date": "2026-03-22T10:27:47.966836",
+    "metrics": {
+        "mape": 1.108587528575169
+    },
+    "path": "models/demand_prod_002/v1/model.joblib"
+}

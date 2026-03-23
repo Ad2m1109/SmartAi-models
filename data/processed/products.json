@@ -1,0 +1,1182 @@
+[
+    {
+        "id": "prod_001",
+        "name": "Bosch Cordless Drill",
+        "category": "Tools",
+        "location": "Stockholm",
+        "condition": "New",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 220.0,
+                "sales": 12
+            },
+            {
+                "date": "2024-01-08",
+                "price": 215.0,
+                "sales": 14
+            },
+            {
+                "date": "2024-01-15",
+                "price": 225.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-01-22",
+                "price": 218.0,
+                "sales": 13
+            },
+            {
+                "date": "2024-01-29",
+                "price": 222.0,
+                "sales": 11
+            },
+            {
+                "date": "2024-02-05",
+                "price": 230.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-12",
+                "price": 219.0,
+                "sales": 15
+            },
+            {
+                "date": "2024-02-19",
+                "price": 225.0,
+                "sales": 12
+            },
+            {
+                "date": "2024-02-26",
+                "price": 217.0,
+                "sales": 14
+            },
+            {
+                "date": "2024-03-04",
+                "price": 221.0,
+                "sales": 13
+            }
+        ]
+    },
+    {
+        "id": "prod_002",
+        "name": "Bosch Cordless Drill Used",
+        "category": "Tools",
+        "location": "Stockholm",
+        "condition": "Used - Good",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 130.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-01-08",
+                "price": 125.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-01-15",
+                "price": 135.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-01-22",
+                "price": 128.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-01-29",
+                "price": 132.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-02-05",
+                "price": 127.0,
+                "sales": 11
+            },
+            {
+                "date": "2024-02-12",
+                "price": 130.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-19",
+                "price": 133.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-02-26",
+                "price": 126.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-03-04",
+                "price": 129.0,
+                "sales": 9
+            }
+        ]
+    },
+    {
+        "id": "prod_003",
+        "name": "Drill Fair Condition",
+        "category": "Tools",
+        "location": "Stockholm",
+        "condition": "Used - Fair",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 75.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-08",
+                "price": 72.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-01-15",
+                "price": 78.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-01-22",
+                "price": 74.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-01-29",
+                "price": 76.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-05",
+                "price": 73.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-12",
+                "price": 77.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-02-19",
+                "price": 75.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-26",
+                "price": 74.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-03-04",
+                "price": 76.0,
+                "sales": 6
+            }
+        ]
+    },
+    {
+        "id": "prod_004",
+        "name": "MacBook Pro 14",
+        "category": "Electronics",
+        "location": "Paris",
+        "condition": "New",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 1800.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-01-08",
+                "price": 1850.0,
+                "sales": 3
+            },
+            {
+                "date": "2024-01-15",
+                "price": 1780.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-22",
+                "price": 1820.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-01-29",
+                "price": 1860.0,
+                "sales": 3
+            },
+            {
+                "date": "2024-02-05",
+                "price": 1790.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-12",
+                "price": 1810.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-02-19",
+                "price": 1840.0,
+                "sales": 3
+            },
+            {
+                "date": "2024-02-26",
+                "price": 1800.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-03-04",
+                "price": 1820.0,
+                "sales": 4
+            }
+        ]
+    },
+    {
+        "id": "prod_005",
+        "name": "Used Laptop",
+        "category": "Electronics",
+        "location": "Berlin",
+        "condition": "Used - Good",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 620.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-01-08",
+                "price": 600.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-01-15",
+                "price": 640.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-22",
+                "price": 615.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-01-29",
+                "price": 625.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-05",
+                "price": 610.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-02-12",
+                "price": 635.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-19",
+                "price": 620.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-26",
+                "price": 605.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-03-04",
+                "price": 618.0,
+                "sales": 7
+            }
+        ]
+    },
+    {
+        "id": "prod_006",
+        "name": "Budget Tablet",
+        "category": "Electronics",
+        "location": "Oslo",
+        "condition": "Used - Fair",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 185.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-01-08",
+                "price": 178.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-01-15",
+                "price": 190.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-01-22",
+                "price": 183.0,
+                "sales": 11
+            },
+            {
+                "date": "2024-01-29",
+                "price": 187.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-05",
+                "price": 180.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-02-12",
+                "price": 185.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-02-19",
+                "price": 192.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-26",
+                "price": 181.0,
+                "sales": 11
+            },
+            {
+                "date": "2024-03-04",
+                "price": 184.0,
+                "sales": 10
+            }
+        ]
+    },
+    {
+        "id": "prod_007",
+        "name": "Premium Leather Sofa",
+        "category": "Furniture",
+        "location": "London",
+        "condition": "New",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 1200.0,
+                "sales": 3
+            },
+            {
+                "date": "2024-01-08",
+                "price": 1250.0,
+                "sales": 2
+            },
+            {
+                "date": "2024-01-15",
+                "price": 1180.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-01-22",
+                "price": 1220.0,
+                "sales": 3
+            },
+            {
+                "date": "2024-01-29",
+                "price": 1260.0,
+                "sales": 2
+            },
+            {
+                "date": "2024-02-05",
+                "price": 1200.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-02-12",
+                "price": 1230.0,
+                "sales": 3
+            },
+            {
+                "date": "2024-02-19",
+                "price": 1245.0,
+                "sales": 2
+            },
+            {
+                "date": "2024-02-26",
+                "price": 1210.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-03-04",
+                "price": 1235.0,
+                "sales": 3
+            }
+        ]
+    },
+    {
+        "id": "prod_008",
+        "name": "Used Dining Table",
+        "category": "Furniture",
+        "location": "Berlin",
+        "condition": "Used - Good",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 280.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-08",
+                "price": 270.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-01-15",
+                "price": 290.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-01-22",
+                "price": 275.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-01-29",
+                "price": 285.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-05",
+                "price": 272.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-02-12",
+                "price": 288.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-02-19",
+                "price": 280.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-26",
+                "price": 273.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-03-04",
+                "price": 282.0,
+                "sales": 6
+            }
+        ]
+    },
+    {
+        "id": "prod_009",
+        "name": "Flat Pack Shelf",
+        "category": "Furniture",
+        "location": "Stockholm",
+        "condition": "Used - Fair",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 45.0,
+                "sales": 14
+            },
+            {
+                "date": "2024-01-08",
+                "price": 42.0,
+                "sales": 16
+            },
+            {
+                "date": "2024-01-15",
+                "price": 48.0,
+                "sales": 12
+            },
+            {
+                "date": "2024-01-22",
+                "price": 44.0,
+                "sales": 15
+            },
+            {
+                "date": "2024-01-29",
+                "price": 47.0,
+                "sales": 13
+            },
+            {
+                "date": "2024-02-05",
+                "price": 43.0,
+                "sales": 16
+            },
+            {
+                "date": "2024-02-12",
+                "price": 46.0,
+                "sales": 12
+            },
+            {
+                "date": "2024-02-19",
+                "price": 45.0,
+                "sales": 14
+            },
+            {
+                "date": "2024-02-26",
+                "price": 43.0,
+                "sales": 15
+            },
+            {
+                "date": "2024-03-04",
+                "price": 46.0,
+                "sales": 13
+            }
+        ]
+    },
+    {
+        "id": "prod_010",
+        "name": "Trek Mountain Bike",
+        "category": "Outdoor",
+        "location": "Oslo",
+        "condition": "New",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 950.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-08",
+                "price": 970.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-01-15",
+                "price": 940.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-01-22",
+                "price": 960.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-29",
+                "price": 975.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-02-05",
+                "price": 945.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-12",
+                "price": 955.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-19",
+                "price": 968.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-02-26",
+                "price": 950.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-03-04",
+                "price": 962.0,
+                "sales": 5
+            }
+        ]
+    },
+    {
+        "id": "prod_011",
+        "name": "City Bicycle",
+        "category": "Outdoor",
+        "location": "Paris",
+        "condition": "Used - Good",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 320.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-01-08",
+                "price": 310.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-01-15",
+                "price": 330.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-01-22",
+                "price": 315.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-01-29",
+                "price": 325.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-02-05",
+                "price": 312.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-12",
+                "price": 322.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-02-19",
+                "price": 318.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-26",
+                "price": 308.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-03-04",
+                "price": 319.0,
+                "sales": 8
+            }
+        ]
+    },
+    {
+        "id": "prod_012",
+        "name": "Camping Tent Old",
+        "category": "Outdoor",
+        "location": "Stockholm",
+        "condition": "Used - Fair",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 55.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-01-08",
+                "price": 52.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-01-15",
+                "price": 58.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-01-22",
+                "price": 54.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-01-29",
+                "price": 57.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-02-05",
+                "price": 53.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-02-12",
+                "price": 56.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-19",
+                "price": 55.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-02-26",
+                "price": 53.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-03-04",
+                "price": 57.0,
+                "sales": 7
+            }
+        ]
+    },
+    {
+        "id": "prod_013",
+        "name": "Designer Watch",
+        "category": "Fashion",
+        "location": "Paris",
+        "condition": "New",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 850.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-01-08",
+                "price": 870.0,
+                "sales": 3
+            },
+            {
+                "date": "2024-01-15",
+                "price": 840.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-22",
+                "price": 860.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-01-29",
+                "price": 875.0,
+                "sales": 3
+            },
+            {
+                "date": "2024-02-05",
+                "price": 850.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-12",
+                "price": 865.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-02-19",
+                "price": 880.0,
+                "sales": 3
+            },
+            {
+                "date": "2024-02-26",
+                "price": 855.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-03-04",
+                "price": 862.0,
+                "sales": 4
+            }
+        ]
+    },
+    {
+        "id": "prod_014",
+        "name": "Used Jacket",
+        "category": "Fashion",
+        "location": "Berlin",
+        "condition": "Used - Good",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 55.0,
+                "sales": 12
+            },
+            {
+                "date": "2024-01-08",
+                "price": 52.0,
+                "sales": 14
+            },
+            {
+                "date": "2024-01-15",
+                "price": 58.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-01-22",
+                "price": 54.0,
+                "sales": 13
+            },
+            {
+                "date": "2024-01-29",
+                "price": 57.0,
+                "sales": 11
+            },
+            {
+                "date": "2024-02-05",
+                "price": 53.0,
+                "sales": 14
+            },
+            {
+                "date": "2024-02-12",
+                "price": 56.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-02-19",
+                "price": 55.0,
+                "sales": 12
+            },
+            {
+                "date": "2024-02-26",
+                "price": 52.0,
+                "sales": 13
+            },
+            {
+                "date": "2024-03-04",
+                "price": 57.0,
+                "sales": 11
+            }
+        ]
+    },
+    {
+        "id": "prod_015",
+        "name": "Sports Camera GoPro",
+        "category": "Electronics",
+        "location": "London",
+        "condition": "New",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 420.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-01-08",
+                "price": 410.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-01-15",
+                "price": 430.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-01-22",
+                "price": 415.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-01-29",
+                "price": 425.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-02-05",
+                "price": 412.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-12",
+                "price": 422.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-19",
+                "price": 418.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-02-26",
+                "price": 408.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-03-04",
+                "price": 420.0,
+                "sales": 7
+            }
+        ]
+    },
+    {
+        "id": "prod_016",
+        "name": "Refurbished iPhone",
+        "category": "Electronics",
+        "location": "Stockholm",
+        "condition": "Refurbished",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 480.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-01-08",
+                "price": 470.0,
+                "sales": 11
+            },
+            {
+                "date": "2024-01-15",
+                "price": 490.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-01-22",
+                "price": 478.0,
+                "sales": 12
+            },
+            {
+                "date": "2024-01-29",
+                "price": 485.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-02-05",
+                "price": 472.0,
+                "sales": 11
+            },
+            {
+                "date": "2024-02-12",
+                "price": 482.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-19",
+                "price": 488.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-02-26",
+                "price": 475.0,
+                "sales": 12
+            },
+            {
+                "date": "2024-03-04",
+                "price": 481.0,
+                "sales": 10
+            }
+        ]
+    },
+    {
+        "id": "prod_017",
+        "name": "Garden Tools Set",
+        "category": "Tools",
+        "location": "London",
+        "condition": "New",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 145.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-01-08",
+                "price": 140.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-01-15",
+                "price": 150.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-01-22",
+                "price": 143.0,
+                "sales": 11
+            },
+            {
+                "date": "2024-01-29",
+                "price": 147.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-05",
+                "price": 141.0,
+                "sales": 10
+            },
+            {
+                "date": "2024-02-12",
+                "price": 148.0,
+                "sales": 8
+            },
+            {
+                "date": "2024-02-19",
+                "price": 145.0,
+                "sales": 9
+            },
+            {
+                "date": "2024-02-26",
+                "price": 142.0,
+                "sales": 11
+            },
+            {
+                "date": "2024-03-04",
+                "price": 146.0,
+                "sales": 10
+            }
+        ]
+    },
+    {
+        "id": "prod_018",
+        "name": "Used Wrench Set",
+        "category": "Tools",
+        "location": "Oslo",
+        "condition": "Used - Good",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 38.0,
+                "sales": 14
+            },
+            {
+                "date": "2024-01-08",
+                "price": 36.0,
+                "sales": 15
+            },
+            {
+                "date": "2024-01-15",
+                "price": 40.0,
+                "sales": 13
+            },
+            {
+                "date": "2024-01-22",
+                "price": 37.0,
+                "sales": 16
+            },
+            {
+                "date": "2024-01-29",
+                "price": 39.0,
+                "sales": 14
+            },
+            {
+                "date": "2024-02-05",
+                "price": 36.0,
+                "sales": 15
+            },
+            {
+                "date": "2024-02-12",
+                "price": 38.0,
+                "sales": 13
+            },
+            {
+                "date": "2024-02-19",
+                "price": 39.0,
+                "sales": 14
+            },
+            {
+                "date": "2024-02-26",
+                "price": 37.0,
+                "sales": 16
+            },
+            {
+                "date": "2024-03-04",
+                "price": 38.0,
+                "sales": 15
+            }
+        ]
+    },
+    {
+        "id": "prod_019",
+        "name": "Piano Keyboard",
+        "category": "Music",
+        "location": "Paris",
+        "condition": "New",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 560.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-08",
+                "price": 545.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-01-15",
+                "price": 575.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-01-22",
+                "price": 555.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-29",
+                "price": 565.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-05",
+                "price": 548.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-12",
+                "price": 570.0,
+                "sales": 4
+            },
+            {
+                "date": "2024-02-19",
+                "price": 558.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-26",
+                "price": 550.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-03-04",
+                "price": 563.0,
+                "sales": 5
+            }
+        ]
+    },
+    {
+        "id": "prod_020",
+        "name": "Used Guitar",
+        "category": "Music",
+        "location": "Berlin",
+        "condition": "Used - Good",
+        "history": [
+            {
+                "date": "2024-01-01",
+                "price": 175.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-01-08",
+                "price": 168.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-01-15",
+                "price": 182.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-01-22",
+                "price": 172.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-01-29",
+                "price": 178.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-05",
+                "price": 169.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-02-12",
+                "price": 176.0,
+                "sales": 5
+            },
+            {
+                "date": "2024-02-19",
+                "price": 173.0,
+                "sales": 6
+            },
+            {
+                "date": "2024-02-26",
+                "price": 167.0,
+                "sales": 7
+            },
+            {
+                "date": "2024-03-04",
+                "price": 175.0,
+                "sales": 6
+            }
+        ]
+    }
+]

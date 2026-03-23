@@ -1,0 +1,42 @@
+# Core
+
+numpy
+pandas
+
+# Machine Learning
+
+scikit-learn
+xgboost
+
+# Time Series (Demand Forecast)
+
+prophet
+
+# API
+
+fastapi
+uvicorn
+
+# Data Processing
+
+joblib
+
+# Validation & Metrics
+
+scipy
+
+# Optional (better data handling & performance)
+
+pyarrow
+
+# Scheduling / Pipelines (optional but recommended)
+
+apscheduler
+
+# Environment management
+
+python-dotenv
+
+# Logging & monitoring
+
+loguru

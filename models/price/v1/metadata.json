@@ -1,0 +1,9 @@
+{
+    "version": "v1",
+    "type": "price",
+    "training_date": "2026-03-22T09:28:41.319330",
+    "metrics": {
+        "mae": 6.425247669219971
+    },
+    "path": "/home/ademyoussfi/Desktop/Projects/smartai-models/models/price/v1/model.joblib"
+}

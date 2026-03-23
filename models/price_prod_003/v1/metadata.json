@@ -1,0 +1,9 @@
+{
+    "version": "v1",
+    "type": "price_prod_003",
+    "training_date": "2026-03-22T10:27:48.600603",
+    "metrics": {
+        "mae": 17.548336029052734
+    },
+    "path": "models/price_prod_003/v1/model.joblib"
+}

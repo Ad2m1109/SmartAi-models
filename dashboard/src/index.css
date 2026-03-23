@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-text-primary font-sans antialiased;
+  }
+}
+
+@layer components {
+  .card-soft {
+    @apply bg-white border border-gray-100 rounded-soft-xl transition-all duration-300 hover:scale-[1.02];
+    /* Using box-shadow directly to avoid Tailwind config sync issues during rapid iteration */
+    box-shadow: 0 0 20px -5px rgba(79, 70, 229, 0.15);
+  }
+
+  .card-soft:hover {
+    box-shadow: 0 0 30px -5px rgba(79, 70, 229, 0.25);
+  }
+
+  .btn-primary {
+    @apply bg-brand-lime text-white px-8 py-2.5 rounded-pill font-semibold transition-all hover:brightness-110 active:scale-95 shadow-soft;
+  }
+
+  .btn-outline {
+    @apply border-2 border-brand-lime text-brand-lime px-8 py-2.5 rounded-pill font-semibold transition-all hover:bg-brand-lime hover:text-white active:scale-95;
+  }
+
+  .icon-box {
+    @apply p-3 bg-brand-lime bg-opacity-10 rounded-soft text-brand-lime;
+  }
+
+  .icon-box-navy {
+    @apply p-3 bg-brand-navy rounded-soft text-white;
+  }
+}

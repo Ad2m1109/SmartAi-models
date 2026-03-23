@@ -24,7 +24,7 @@ PRODUCTS_DATA = os.path.join(ROOT_DIR, "data/processed/products.json")
 registry = ModelRegistry(MODEL_STORAGE)
 pipeline = RetrainingPipeline(registry)
 demand_service = DemandService(registry)
-price_service = PriceService(registry)
+price_service = PriceService(registry, PRODUCTS_DATA)
 analytics_service = AnalyticsService()
 scheduler = model_scheduler(pipeline, PRODUCTS_DATA)
 
@@ -82,9 +82,16 @@ class PriceRecommendationRequest(BaseModel):
     potential_prices: List[float]
 
 class ComparativePriceRequest(BaseModel):
+    mode: str = "item"
     category: str
     location: str
-    condition: str
+    condition: Optional[str] = "New"
+    title: Optional[str] = None
+    details: Optional[str] = None
+    audience: Optional[str] = None
+    shipping: Optional[str] = None
+    is_urgent: bool = False
+    target_price: Optional[float] = None
 
 
 # ─── Structured Error Response ───────────────────────────────────────
@@ -161,7 +168,18 @@ def recommend_price(request: PriceRecommendationRequest):
 @app.post("/predict/comparative-price")
 def predict_comparative_price(request: ComparativePriceRequest):
     logger.info(f"Comparative Price Request: {request.dict()}")
-    result = price_service.predict_comparative_price(request.category, request.location, request.condition)
+    result = price_service.predict_comparative_price(
+        category=request.category,
+        location=request.location,
+        condition=request.condition,
+        mode=request.mode,
+        title=request.title,
+        details=request.details,
+        audience=request.audience,
+        shipping=request.shipping,
+        is_urgent=request.is_urgent,
+        target_price=request.target_price,
+    )
     if "error" in result:
         raise_smart_error(400, "Comparative price prediction failed", result["error"])
     return result

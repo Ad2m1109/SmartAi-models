@@ -4,7 +4,7 @@ import { Wand2, Sparkles, User, ShieldCheck, RefreshCcw, Briefcase, UserCircle, 
 import axios from 'axios';
 import API from '../config/api';
 
-const LLM_ENDPOINT = 'https://0d88-34-12-160-9.ngrok-free.app/generate';
+const LLM_ENDPOINT = 'https://cb94-35-240-172-91.ngrok-free.app/generate';
 
 const MarkdownLite = ({ text, className }) => {
     if (!text) return null;
@@ -38,6 +38,106 @@ const ListingAssistant = () => {
     const [isAutofilling, setIsAutofilling] = useState(false);
     const [isOptimizingPrice, setIsOptimizingPrice] = useState(false);
     const [isOptimizingTime, setIsOptimizingTime] = useState(false);
+    const pricingMode = mode === 'product' ? 'item' : mode === 'service_provider' ? 'service' : 'help';
+    const priceFieldLabel = pricingMode === 'service'
+        ? 'Your Expected Rate ($)'
+        : pricingMode === 'help'
+            ? 'Your Expected Budget ($)'
+            : 'Your Expected Price ($)';
+    const marketSignalLabel = pricingMode === 'service'
+        ? 'Service Signal'
+        : pricingMode === 'help'
+            ? 'Budget Signal'
+            : 'Real-Time Demand';
+    const urgencyTitle = pricingMode === 'service'
+        ? 'Urgent Booking'
+        : pricingMode === 'help'
+            ? 'Urgent Request'
+            : 'Urgent Sale';
+    const urgencyDescription = pricingMode === 'service'
+        ? 'Prioritize fast leads'
+        : pricingMode === 'help'
+            ? 'Prioritize quick responses'
+            : 'Optimize for speed';
+
+    const TAG_STOP_WORDS = new Set([
+        'the', 'and', 'for', 'with', 'this', 'that', 'from', 'into', 'your', 'you',
+        'are', 'our', 'has', 'have', 'will', 'can', 'all', 'new', 'used', 'good',
+        'fair', 'very', 'just', 'more', 'best', 'help', 'need', 'local'
+    ]);
+
+    const addTagCandidate = (list, seen, rawTag) => {
+        const tag = rawTag
+            ?.toLowerCase()
+            .replace(/[^a-z0-9+\-\s]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        if (!tag || tag.length < 2 || seen.has(tag)) return;
+
+        seen.add(tag);
+        list.push(tag);
+    };
+
+    const sanitizeTagList = (rawTags = '') => {
+        const tags = [];
+        const seen = new Set();
+
+        rawTags
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(Boolean)
+            .forEach(tag => addTagCandidate(tags, seen, tag));
+
+        return tags.slice(0, 6).join(', ');
+    };
+
+    const extractKeywordTags = (value = '') => {
+        return value
+            .toLowerCase()
+            .replace(/[^a-z0-9+\-\s]/g, ' ')
+            .split(/\s+/)
+            .filter(word => word.length > 2 && !TAG_STOP_WORDS.has(word));
+    };
+
+    const buildFallbackTags = ({ title = '', description = '', features = [], tags = '' }) => {
+        const suggestions = [];
+        const seen = new Set();
+
+        [tags, formData.tags].filter(Boolean).forEach(rawList => {
+            rawList.split(',').forEach(tag => addTagCandidate(suggestions, seen, tag));
+        });
+
+        [
+            title,
+            formData.name,
+            formData.category,
+            formData.location,
+            mode === 'product' ? formData.condition : ''
+        ].filter(Boolean).forEach(value => {
+            addTagCandidate(suggestions, seen, value);
+            extractKeywordTags(value).forEach(word => addTagCandidate(suggestions, seen, word));
+        });
+
+        [...features, description, formData.details].filter(Boolean).forEach(value => {
+            extractKeywordTags(value).forEach(word => addTagCandidate(suggestions, seen, word));
+        });
+
+        if (mode === 'service_provider') {
+            ['service', 'professional', 'reliable'].forEach(word => addTagCandidate(suggestions, seen, word));
+        } else if (mode === 'client') {
+            ['request', 'needed', 'urgent'].forEach(word => addTagCandidate(suggestions, seen, word));
+        } else {
+            ['quality', 'sale', 'pickup'].forEach(word => addTagCandidate(suggestions, seen, word));
+        }
+
+        return suggestions.slice(0, 6).join(', ');
+    };
+
+    const formatCurrency = (value) => Number(value || 0).toLocaleString([], {
+        minimumFractionDigits: Number(value || 0) % 1 ? 2 : 0,
+        maximumFractionDigits: 2
+    });
 
     // Feature 1: AI Autofill (Mockup)
     const handleAutofill = async () => {
@@ -58,43 +158,65 @@ const ListingAssistant = () => {
     const fetchMarketIntelligence = async () => {
         if (!formData.category || !formData.location) return null;
 
-        // Map user-typed category to the real trained product IDs
-        const catLower = formData.category.toLowerCase();
-        let productId = 'prod_001'; // Default to Tools
-        if (catLower.includes('furniture') || catLower.includes('sofa') || catLower.includes('chair') || catLower.includes('table')) productId = 'prod_002';
-        else if (catLower.includes('electronics') || catLower.includes('computer') || catLower.includes('pc') || catLower.includes('phone') || catLower.includes('laptop')) productId = 'prod_003';
-        else if (catLower.includes('outdoor') || catLower.includes('garden') || catLower.includes('bike') || catLower.includes('sport')) productId = 'prod_004';
-        // drill, tools, hardware etc → prod_001 (Tools)
+        let marketSignal = pricingMode === 'service'
+            ? 'Service Market Active'
+            : pricingMode === 'help'
+                ? 'Budget Planning Active'
+                : 'Analysis Ready';
 
-        let demandState = 'Analysis Ready';
+        if (pricingMode === 'item') {
+            const catLower = formData.category.toLowerCase();
+            let productId = 'prod_001'; // Default to Tools
+            if (catLower.includes('furniture') || catLower.includes('sofa') || catLower.includes('chair') || catLower.includes('table')) productId = 'prod_002';
+            else if (catLower.includes('electronics') || catLower.includes('computer') || catLower.includes('pc') || catLower.includes('phone') || catLower.includes('laptop')) productId = 'prod_003';
+            else if (catLower.includes('outdoor') || catLower.includes('garden') || catLower.includes('bike') || catLower.includes('sport')) productId = 'prod_004';
 
-        try {
-            // 1. Fetch Demand Forecast (best-effort, non-blocking)
-            const demandRes = await axios.post(API.PREDICT_DEMAND, {
-                product_id: productId,
-                periods: 7
-            });
-            const demandVal = demandRes.data.forecast?.[0]?.yhat ?? demandRes.data.predictions?.[0] ?? 45;
-            if (demandVal > 60) demandState = 'High-Intensity 🔥';
-            else if (demandVal < 30) demandState = 'Steady';
-            else demandState = 'Moderate';
-        } catch (err) {
-            console.warn('Demand forecast unavailable, continuing with price prediction:', err.message);
-            demandState = 'Market Active';
+            try {
+                const demandRes = await axios.post(API.PREDICT_DEMAND, {
+                    product_id: productId,
+                    periods: 7
+                });
+                const demandVal = demandRes.data.forecast?.[0]?.yhat ?? demandRes.data.predictions?.[0] ?? 45;
+                if (demandVal > 60) marketSignal = 'High-Intensity 🔥';
+                else if (demandVal < 30) marketSignal = 'Steady';
+                else marketSignal = 'Moderate';
+            } catch (err) {
+                console.warn('Demand forecast unavailable, continuing with price prediction:', err.message);
+                marketSignal = 'Market Active';
+            }
         }
 
-        setFormData(prev => ({ ...prev, marketDemand: demandState }));
-
-        // 2. Fetch Comparative Price (the new ML model — this is the critical call)
         const priceRes = await axios.post(API.PREDICT_COMPARATIVE, {
+            mode: pricingMode,
             category: formData.category,
             location: formData.location,
-            condition: formData.condition || 'New'
+            condition: formData.condition || 'New',
+            title: formData.name,
+            details: formData.details,
+            audience: formData.audience,
+            shipping: formData.shipping,
+            is_urgent: formData.isUrgent,
+            target_price: formData.targetPrice ? parseFloat(formData.targetPrice) : null
         });
 
+        marketSignal = priceRes.data.market_signal || marketSignal;
+        setFormData(prev => ({ ...prev, marketDemand: marketSignal }));
+
         return {
-            demand: demandState,
-            recPrice: priceRes.data.recommended_price || 95.0
+            demand: marketSignal,
+            recPrice: priceRes.data.recommended_price || 95.0,
+            confidence: priceRes.data.confidence ?? 0.6,
+            confidenceBasis: priceRes.data.confidence_basis || 'Confidence is based on market evidence.',
+            confidenceIsInputIndependent: priceRes.data.confidence_is_input_independent ?? true,
+            inputInfluencePct: priceRes.data.input_influence_pct ?? 0,
+            inputInfluenceLabel: priceRes.data.input_influence_label || 'None',
+            priceLabel: priceRes.data.price_label || 'Suggested price',
+            strategyType: priceRes.data.pricing_strategy || 'market_benchmark',
+            reason: priceRes.data.explanation || 'Market-aligned recommendation.',
+            rangeMin: priceRes.data.suggested_min_price,
+            rangeMax: priceRes.data.suggested_max_price,
+            referenceScope: priceRes.data.reference_scope,
+            sampleSize: priceRes.data.sample_size
         };
     };
 
@@ -110,23 +232,49 @@ const ListingAssistant = () => {
             if (intel) {
                 const userPrice = parseFloat(formData.targetPrice) || 0;
                 const diff = userPrice - intel.recPrice;
-                let priceInsight = "Market competitive pricing.";
+                const priceNoun = pricingMode === 'service' ? 'rate' : pricingMode === 'help' ? 'budget' : 'price';
+                let priceInsight = intel.reason || 'Market competitive pricing.';
+                const hasRange = intel.rangeMin != null && intel.rangeMax != null;
 
-                if (userPrice > 0) {
-                    if (diff > 20) priceInsight = `Your price is $${diff.toFixed(0)} above the suggested rate for ${formData.location}.`;
-                    else if (diff < -20) priceInsight = `Great value! You are $${Math.abs(diff).toFixed(0)} below the current ${intel.demand} demand average.`;
+                if (userPrice > 0 && hasRange) {
+                    if (userPrice > intel.rangeMax) {
+                        priceInsight = `Your ${priceNoun} is $${(userPrice - intel.rangeMax).toFixed(0)} above the top of the suggested range for ${formData.location}.`;
+                    } else if (userPrice < intel.rangeMin) {
+                        priceInsight = `Your ${priceNoun} is $${(intel.rangeMin - userPrice).toFixed(0)} below the bottom of the suggested range for ${formData.location}.`;
+                    } else {
+                        priceInsight = `Your ${priceNoun} sits inside the suggested range for ${formData.location}.`;
+                    }
+                } else if (userPrice > 0) {
+                    if (diff > 20) priceInsight = `Your ${priceNoun} is $${diff.toFixed(0)} above the suggested ${priceNoun} for ${formData.location}.`;
+                    else if (diff < -20) priceInsight = `You are $${Math.abs(diff).toFixed(0)} below the suggested ${priceNoun} for ${formData.location}.`;
                 }
 
                 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
                 const bestDay = days[Math.floor(Math.random() * 7)];
+                const confidenceScore = intel.confidence <= 1 ? Math.round(intel.confidence * 100) : Math.round(intel.confidence);
+                const bestTime = pricingMode === 'service'
+                    ? `${bestDay} at 09:00`
+                    : pricingMode === 'help'
+                        ? `${bestDay} at 07:30`
+                        : `${bestDay} at 18:00`;
 
                 setStrategy({
                     recommended_price: intel.recPrice,
+                    suggested_min_price: intel.rangeMin,
+                    suggested_max_price: intel.rangeMax,
+                    price_label: intel.priceLabel,
+                    strategy_type: intel.strategyType,
                     user_price: userPrice,
                     price_insight: priceInsight,
-                    confidence: 92,
-                    best_time: `${bestDay} at 18:00`,
-                    reason: `${intel.demand} demand detected in ${formData.location}.`
+                    confidence: confidenceScore,
+                    confidence_basis: intel.confidenceBasis,
+                    confidence_is_input_independent: intel.confidenceIsInputIndependent,
+                    input_influence_pct: intel.inputInfluencePct,
+                    input_influence_label: intel.inputInfluenceLabel,
+                    reference_scope: intel.referenceScope,
+                    sample_size: intel.sampleSize,
+                    best_time: bestTime,
+                    reason: intel.reason
                 });
             } else {
                 alert("The AI model is currently calibrating for this category. Please try again in a moment.");
@@ -205,6 +353,7 @@ IMPORTANT: Use the following format EXACTLY:
 * Feature 3
 * Feature 4
 [/FEATURES]
+[TAGS] tag1, tag2, tag3, tag4, tag5 [/TAGS]
 `;
                 helperPrompt = `
 You are a friendly marketplace helper. Help an everyday user list a product.
@@ -220,6 +369,7 @@ IMPORTANT: Use the following format EXACTLY:
 * Benefit 2
 * Benefit 3
 [/FEATURES]
+[TAGS] tag1, tag2, tag3, tag4 [/TAGS]
 `;
             } else if (mode === 'service_provider') {
                 expertPrompt = `
@@ -238,6 +388,7 @@ IMPORTANT: Use the following format EXACTLY:
 * Skill/Guarantee 3
 * Skill/Guarantee 4
 [/FEATURES]
+[TAGS] skill1, skill2, guarantee1, service1 [/TAGS]
 `;
                 helperPrompt = `
 You are a friendly "CopyCoach". Help someone offer their skills simply.
@@ -253,6 +404,7 @@ IMPORTANT: Use the following format EXACTLY:
 * What I'll do 2
 * What I'll do 3
 [/FEATURES]
+[TAGS] help1, help2, local, reliable [/TAGS]
 `;
             } else {
                 // Client Mode
@@ -270,6 +422,7 @@ IMPORTANT: Use the following format EXACTLY:
 * Requirement 2
 * Requirement 3
 [/FEATURES]
+[TAGS] need1, need2, required1, task1 [/TAGS]
 `;
                 helperPrompt = `
 You are a friendly "CopyCoach". Help someone ask for help simply.
@@ -285,6 +438,7 @@ IMPORTANT: Use the following format EXACTLY:
 * Detail 2
 * Detail 3
 [/FEATURES]
+[TAGS] task1, simple, local, help [/TAGS]
 `;
             }
 
@@ -310,25 +464,30 @@ IMPORTANT: Use the following format EXACTLY:
         const selected = result[type];
         if (!selected) return;
         const newDetails = `${selected.description}\n\nFeatures:\n${selected.features.map(f => `• ${f}`).join('\n')}`;
+        const suggestedTags = sanitizeTagList(selected.tags) || buildFallbackTags(selected);
+
         setFormData(prev => ({
             ...prev,
             name: selected.title || prev.name,
-            details: newDetails
+            details: newDetails,
+            tags: suggestedTags || prev.tags
         }));
         setResult(null); // Dismiss after applying
     };
 
     const parseOutput = (text) => {
-        if (typeof text !== 'string') return { title: 'Optimization Error', description: 'Invalid response.', features: [] };
+        if (typeof text !== 'string') return { title: 'Optimization Error', description: 'Invalid response.', features: [], tags: '' };
 
         let title = '';
         let description = '';
         let features = [];
+        let tags = '';
 
         // 1. Try Tag-based extraction (Robust)
         const titleMatch = text.match(/\[TITLE\]([\s\S]*?)\[\/TITLE\]/i);
         const descMatch = text.match(/\[DESCRIPTION\]([\s\S]*?)\[\/DESCRIPTION\]/i);
         const featuresMatch = text.match(/\[FEATURES\]([\s\S]*?)\[\/FEATURES\]/i);
+        const tagsMatch = text.match(/\[TAGS\]([\s\S]*?)\[\/TAGS\]/i);
 
         if (titleMatch) title = titleMatch[1].trim();
         if (descMatch) description = descMatch[1].trim();
@@ -336,6 +495,9 @@ IMPORTANT: Use the following format EXACTLY:
             features = featuresMatch[1].split('\n')
                 .map(f => f.replace(/^[*-\d.]\s*/, '').trim())
                 .filter(f => f.length > 0);
+        }
+        if (tagsMatch) {
+            tags = tagsMatch[1].trim();
         }
 
         // 2. Keyword-based fallback
@@ -347,6 +509,8 @@ IMPORTANT: Use the following format EXACTLY:
                 const lower = line.toLowerCase();
                 if (lower.includes('title:') && !title) {
                     title = line.split(/title:/i)[1]?.trim();
+                } else if (lower.includes('tags:') && !tags) {
+                    tags = line.split(/tags:/i)[1]?.trim();
                 } else if (lower.includes('description:')) {
                     currentSection = 'desc';
                 } else if (lower.includes('features:') || lower.includes('benefits:') || lower.includes('skills:')) {
@@ -375,10 +539,13 @@ IMPORTANT: Use the following format EXACTLY:
             }
         }
 
+        const normalizedTags = sanitizeTagList(tags) || buildFallbackTags({ title, description, features, tags });
+
         return {
             title: title || 'Optimized Result',
             description: description.trim() || text.substring(0, 200) + '...',
-            features: features.length > 0 ? features.slice(0, 5) : ['AI optimization applied']
+            features: features.length > 0 ? features.slice(0, 5) : ['AI optimization applied'],
+            tags: normalizedTags
         };
     };
 
@@ -554,6 +721,18 @@ IMPORTANT: Use the following format EXACTLY:
                                             ))}
                                             {result.expert.features.length > 3 && <span className="text-[9px] text-brand-lime font-bold">+{result.expert.features.length - 3}</span>}
                                         </div>
+                                        {result.expert.tags && (
+                                            <div className="mt-3">
+                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-lime mb-2">Suggested Tags</p>
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {result.expert.tags.split(',').map((tag, i) => (
+                                                        <span key={i} className="text-[9px] bg-brand-lime bg-opacity-10 px-2 py-0.5 rounded text-brand-lime">
+                                                            {tag.trim()}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Helper Result */}
@@ -575,6 +754,18 @@ IMPORTANT: Use the following format EXACTLY:
                                             ))}
                                             {result.helper.features.length > 3 && <span className="text-[9px] text-text-secondary font-bold">+{result.helper.features.length - 3}</span>}
                                         </div>
+                                        {result.helper.tags && (
+                                            <div className="mt-3">
+                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-text-secondary mb-2">Suggested Tags</p>
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {result.helper.tags.split(',').map((tag, i) => (
+                                                        <span key={i} className="text-[9px] bg-brand-lime bg-opacity-10 px-2 py-0.5 rounded text-brand-navy">
+                                                            {tag.trim()}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </motion.div>
                             )}
@@ -673,7 +864,7 @@ IMPORTANT: Use the following format EXACTLY:
                             <p className="text-sm font-bold uppercase tracking-tight">{formData.location || 'Local'}</p>
                         </div>
                         <div className="flex-1 pl-6">
-                            <h5 className="text-[8px] font-black uppercase tracking-widest opacity-40 mb-1">Real-Time Demand</h5>
+                            <h5 className="text-[8px] font-black uppercase tracking-widest opacity-40 mb-1">{marketSignalLabel}</h5>
                             <div className="flex items-center gap-2">
                                 <p className="text-sm font-black text-brand-lime leading-none">{formData.marketDemand}</p>
                                 <TrendingUp className="w-3 h-3 text-brand-lime" />
@@ -683,7 +874,7 @@ IMPORTANT: Use the following format EXACTLY:
 
                     <div className="md:col-span-1 flex flex-col gap-3 relative">
                         <div className="flex justify-between items-center pr-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">Your Expected Price ($)</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">{priceFieldLabel}</label>
                             <button
                                 onClick={handlePredictPrice}
                                 disabled={isOptimizingPrice}
@@ -710,8 +901,8 @@ IMPORTANT: Use the following format EXACTLY:
                                 onChange={e => setFormData({ ...formData, isUrgent: e.target.checked })}
                             />
                             <div>
-                                <h5 className="text-[8px] font-black uppercase tracking-widest text-brand-navy">Urgent Sale</h5>
-                                <p className="text-[8px] font-medium text-text-secondary italic">Optimize for speed</p>
+                                <h5 className="text-[8px] font-black uppercase tracking-widest text-brand-navy">{urgencyTitle}</h5>
+                                <p className="text-[8px] font-medium text-text-secondary italic">{urgencyDescription}</p>
                             </div>
                         </label>
                     </div>
@@ -727,9 +918,21 @@ IMPORTANT: Use the following format EXACTLY:
                                 {/* Price Strategy Card */}
                                 <div className="card-soft p-5 bg-brand-navy text-white flex flex-col items-center justify-center text-center">
                                     <DollarSign className="w-5 h-5 text-brand-lime mb-2" />
-                                    <span className="text-[9px] font-black uppercase tracking-widest opacity-60">AI Strategy Price</span>
-                                    <div className="text-2xl font-black my-1">${strategy.recommended_price}</div>
-                                    {strategy.user_price > 0 && <div className="text-[8px] font-bold opacity-60 mb-1">Your Input: ${strategy.user_price}</div>}
+                                    <span className="text-[9px] font-black uppercase tracking-widest opacity-60">{strategy.price_label || 'AI Strategy Price'}</span>
+                                    {strategy.suggested_min_price != null && strategy.suggested_max_price != null ? (
+                                        <div className="text-2xl font-black my-1">
+                                            ${formatCurrency(strategy.suggested_min_price)} - ${formatCurrency(strategy.suggested_max_price)}
+                                        </div>
+                                    ) : (
+                                        <div className="text-2xl font-black my-1">${formatCurrency(strategy.recommended_price)}</div>
+                                    )}
+                                    <div className="text-[8px] font-bold opacity-60 mb-1">Center benchmark: ${formatCurrency(strategy.recommended_price)}</div>
+                                    {strategy.user_price > 0 && <div className="text-[8px] font-bold opacity-60 mb-1">Your Input: ${formatCurrency(strategy.user_price)}</div>}
+                                    {strategy.reference_scope && (
+                                        <div className="text-[8px] font-bold opacity-60 mb-1">
+                                            Basis: {strategy.reference_scope}{strategy.sample_size ? ` • ${strategy.sample_size} comps` : ''}
+                                        </div>
+                                    )}
                                     <p className="text-[10px] font-medium opacity-80 mt-1 line-clamp-2">{strategy.price_insight}</p>
                                 </div>
 
@@ -749,6 +952,19 @@ IMPORTANT: Use the following format EXACTLY:
                                     <div className="w-3/4 bg-gray-200 h-1.5 rounded-full mt-1 overflow-hidden">
                                         <motion.div initial={{ width: 0 }} animate={{ width: `${strategy.confidence}%` }} className="h-full bg-brand-lime" />
                                     </div>
+                                    {strategy.confidence_is_input_independent && (
+                                        <p className="text-[8px] font-bold text-text-secondary mt-3">
+                                            Based on market evidence, not your entered value.
+                                        </p>
+                                    )}
+                                    <p className="text-[8px] font-bold text-text-secondary mt-1">
+                                        Input influence: {strategy.input_influence_label || 'None'}{typeof strategy.input_influence_pct === 'number' ? ` (${strategy.input_influence_pct}%)` : ''}
+                                    </p>
+                                    {strategy.confidence_basis && (
+                                        <p className="text-[8px] font-medium text-text-secondary mt-2 leading-relaxed">
+                                            {strategy.confidence_basis}
+                                        </p>
+                                    )}
                                 </div>
                             </motion.div>
                         )}

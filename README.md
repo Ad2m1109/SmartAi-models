@@ -434,8 +434,6 @@ smartai-models/
 │   └── train_simulator.py
 ├── utils/
 │   └── feature_engineering.py
-├── Simulator.md
-├── features.md
 └── README.md
 ```
 

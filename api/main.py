@@ -1,19 +1,22 @@
-import os
 import json
+import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
-from services.demand_service import DemandService
-from services.price_service import PriceService
-from services.analytics_service import AnalyticsService
-from services.model_registry import ModelRegistry
-from services.scheduler import model_scheduler
-from training.retraining_pipeline import RetrainingPipeline
-import pandas as pd
-from loguru import logger
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import pandas as pd
+from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
+from pydantic import BaseModel, Field
+
+from services.analytics_service import AnalyticsService
+from services.demand_service import DemandService
+from services.model_registry import ModelRegistry
+from services.price_service import PriceService
+from services.scheduler import model_scheduler
+from services.simulator_service import SimulatorService
+from training.retraining_pipeline import RetrainingPipeline
 
 # Configuration
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,39 +28,41 @@ registry = ModelRegistry(MODEL_STORAGE)
 pipeline = RetrainingPipeline(registry)
 demand_service = DemandService(registry)
 price_service = PriceService(registry, PRODUCTS_DATA)
+simulator_service = SimulatorService(registry, PRODUCTS_DATA, pipeline)
 analytics_service = AnalyticsService()
 scheduler = model_scheduler(pipeline, PRODUCTS_DATA)
 
 
-# ─── Lifespan (replaces deprecated on_event) ─────────────────────────
+def ensure_global_model(model_name: str, trainer: Any, label: str):
+    latest = registry.get_latest_version(model_name)
+    if not latest:
+        logger.info(f"No {label} model found, training on startup...")
+        trainer(PRODUCTS_DATA)
+        return
+
+    data_mtime = os.path.getmtime(PRODUCTS_DATA)
+    model_date = datetime.fromisoformat(latest['training_date'])
+    if datetime.fromtimestamp(data_mtime) > model_date:
+        logger.info(f"Data file updated since last {label} training, retraining...")
+        trainer(PRODUCTS_DATA)
+    else:
+        logger.info(f"{label.capitalize()} model {latest['version']} is up-to-date.")
+
+
+# Lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Application starting up...")
-
-    # Auto-retrain comparative model if not present or data changed
-    latest = registry.get_latest_version("global_comparative_price")
-    if not latest:
-        logger.info("No global comparative model found — training on startup...")
-        pipeline.train_comparative_price_model(PRODUCTS_DATA)
-    else:
-        # Check if data is newer than the last trained model
-        data_mtime = os.path.getmtime(PRODUCTS_DATA)
-        model_date = datetime.fromisoformat(latest['training_date'])
-        if datetime.fromtimestamp(data_mtime) > model_date:
-            logger.info("Data file updated since last training — retraining...")
-            pipeline.train_comparative_price_model(PRODUCTS_DATA)
-        else:
-            logger.info(f"Global comparative model {latest['version']} is up-to-date.")
-
-    yield  # App is running
-
+    ensure_global_model("global_comparative_price", pipeline.train_comparative_price_model, "comparative price")
+    ensure_global_model("sales_simulator_global", pipeline.train_sales_simulator_model, "sales simulator")
+    yield
     logger.info("Application shutting down...")
 
 
 app = FastAPI(
     title="SmartAI Models API",
     description="Production-ready API with Unified Product Intelligence",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Enable CORS for dashboard
@@ -70,16 +75,18 @@ app.add_middleware(
 )
 
 
-# ─── Request Models ──────────────────────────────────────────────────
+# Request Models
 class PredictionRequest(BaseModel):
     product_id: str
     periods: int = 30
     freq: str = 'D'
 
+
 class PriceRecommendationRequest(BaseModel):
     product_id: str
     date: str
     potential_prices: List[float]
+
 
 class ComparativePriceRequest(BaseModel):
     mode: str = "item"
@@ -94,31 +101,42 @@ class ComparativePriceRequest(BaseModel):
     target_price: Optional[float] = None
 
 
-# ─── Structured Error Response ───────────────────────────────────────
+class SimulatorRequest(BaseModel):
+    mode: str = "item"
+    category: str
+    location: str
+    condition: Optional[str] = "New"
+    price: float = Field(..., gt=0)
+    forecast_date: Optional[str] = None
+
+
+# Structured Error Response
 def raise_smart_error(status_code: int, message: str, detail: str = ""):
     raise HTTPException(
         status_code=status_code,
         detail={
             "message": message,
             "detail": detail,
-            "timestamp": datetime.now().isoformat()
-        }
+            "timestamp": datetime.now().isoformat(),
+        },
     )
 
 
-# ─── Endpoints ────────────────────────────────────────────────────────
+# Endpoints
 @app.get("/")
 def read_root():
     return {
         "message": "SmartAI Models API is online.",
         "status": "Healthy",
-        "data_source": "products.json"
+        "data_source": "products.json",
     }
+
 
 @app.get("/health")
 def health_check():
     """System readiness check."""
     comparative_model = registry.get_latest_version("global_comparative_price")
+    simulator_model = registry.get_latest_version("sales_simulator_global")
     with open(PRODUCTS_DATA, 'r') as f:
         product_count = len(json.load(f))
 
@@ -128,14 +146,19 @@ def health_check():
         "models": {
             "comparative_price": {
                 "loaded": comparative_model is not None,
-                "version": comparative_model['version'] if comparative_model else None
-            }
+                "version": comparative_model['version'] if comparative_model else None,
+            },
+            "sales_simulator": {
+                "loaded": simulator_model is not None,
+                "version": simulator_model['version'] if simulator_model else None,
+            },
         },
         "data": {
             "products_count": product_count,
-            "data_path": PRODUCTS_DATA
-        }
+            "data_path": PRODUCTS_DATA,
+        },
     }
+
 
 @app.get("/products")
 def list_products():
@@ -147,8 +170,9 @@ def list_products():
         "name": p['name'],
         "category": p['category'],
         "location": p.get('location', 'Global'),
-        "condition": p.get('condition', 'New')
+        "condition": p.get('condition', 'New'),
     } for p in data]
+
 
 @app.post("/predict/demand")
 def predict_demand(request: PredictionRequest):
@@ -157,6 +181,7 @@ def predict_demand(request: PredictionRequest):
         raise_smart_error(400, "Demand prediction failed", result["error"])
     return result
 
+
 @app.post("/predict/price")
 def recommend_price(request: PriceRecommendationRequest):
     logger.info(f"Price Recommendation Request: {request.dict()}")
@@ -164,6 +189,7 @@ def recommend_price(request: PriceRecommendationRequest):
     if "error" in result:
         raise_smart_error(400, "Price recommendation failed", result["error"])
     return result
+
 
 @app.post("/predict/comparative-price")
 def predict_comparative_price(request: ComparativePriceRequest):
@@ -184,6 +210,29 @@ def predict_comparative_price(request: ComparativePriceRequest):
         raise_smart_error(400, "Comparative price prediction failed", result["error"])
     return result
 
+
+@app.post("/predict/simulator")
+def predict_simulator(request: SimulatorRequest):
+    logger.info(f"Simulator Request: {request.dict()}")
+    if request.mode != "item":
+        raise_smart_error(
+            400,
+            "Boost Simulator is currently available only for item listings.",
+            f"Unsupported mode: {request.mode}",
+        )
+
+    result = simulator_service.predict_sales_forecast(
+        category=request.category,
+        location=request.location,
+        condition=request.condition,
+        price=request.price,
+        forecast_date=request.forecast_date,
+    )
+    if "error" in result:
+        raise_smart_error(400, "Simulator prediction failed", result["error"])
+    return result
+
+
 @app.get("/models/inventory")
 def get_model_inventory():
     """Returns all versions for all products."""
@@ -195,19 +244,20 @@ def get_model_inventory():
         p_id = product['id']
         inventory[p_id] = {
             "demand": registry.list_inventory(f"demand_{p_id}"),
-            "price": registry.list_inventory(f"price_{p_id}")
+            "price": registry.list_inventory(f"price_{p_id}"),
         }
 
-    # Add the global comparative model
     inventory["_global"] = {
-        "comparative_price": registry.list_inventory("global_comparative_price")
+        "comparative_price": registry.list_inventory("global_comparative_price"),
+        "sales_simulator": registry.list_inventory("sales_simulator_global"),
     }
     return inventory
+
 
 @app.post("/models/trigger-retrain")
 async def trigger_retrain(product_id: str, model_type: str, background_tasks: BackgroundTasks):
     """Manually triggers retraining for a specific product and model type."""
-    valid_types = ["demand", "price", "comparative"]
+    valid_types = ["demand", "price", "comparative", "simulator"]
     if model_type not in valid_types:
         raise_smart_error(400, f"Invalid model type. Must be one of: {valid_types}")
 
@@ -217,8 +267,11 @@ async def trigger_retrain(product_id: str, model_type: str, background_tasks: Ba
         background_tasks.add_task(pipeline.retrain_price, PRODUCTS_DATA, product_id)
     elif model_type == "comparative":
         background_tasks.add_task(pipeline.train_comparative_price_model, PRODUCTS_DATA)
+    elif model_type == "simulator":
+        background_tasks.add_task(pipeline.train_sales_simulator_model, PRODUCTS_DATA)
 
     return {"message": f"Retraining triggered for {model_type} ({product_id})"}
+
 
 @app.get("/analytics/summary")
 def get_summary():
@@ -237,7 +290,6 @@ def get_summary():
     full_df = pd.concat(all_history)
     summary = analytics_service.get_summary_stats(full_df)
 
-    # Add enriched stats
     summary['categories'] = list(full_df['category'].unique())
     summary['locations'] = list(full_df['location'].unique()) if 'location' in full_df.columns else []
     summary['product_count'] = len(data)
@@ -247,4 +299,5 @@ def get_summary():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,0 +1,18 @@
+{
+    "version": "v1",
+    "type": "sales_simulator_global",
+    "training_date": "2026-03-24T10:46:51.202201",
+    "metrics": {
+        "records": 60,
+        "train_size": 48,
+        "test_size": 12,
+        "mae": 6.31,
+        "rmse": 7.84,
+        "r2_score": 0.7366,
+        "categories": 6,
+        "locations": 5,
+        "conditions": 4,
+        "months": 3
+    },
+    "path": "models/sales_simulator_global/v1/model.joblib"
+}

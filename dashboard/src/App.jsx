@@ -5,7 +5,6 @@ import ModelCard from './components/ModelCard';
 import AccuracyChart from './components/AccuracyChart';
 import ModelTable from './components/ModelTable';
 import ListingAssistant from './components/ListingAssistant';
-import EarningsSimulator from './components/EarningsSimulator';
 import { RefreshCcw, LayoutDashboard, Database, Shield, Zap, Sparkles, ChevronDown, DollarSign, Clock, ShieldCheck, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import API from './config/api';
@@ -97,13 +96,6 @@ function App() {
             >
               <Sparkles className="w-4 h-4" />
               Listing Hub
-            </button>
-            <button
-              onClick={() => setActiveTab('simulator')}
-              className={`px-6 py-2.5 rounded-pill text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'simulator' ? 'bg-brand-navy text-white' : 'text-text-secondary hover:bg-brand-gray-bg'}`}
-            >
-              <DollarSign className="w-4 h-4" />
-              Simulator
             </button>
           </div>
 
@@ -253,17 +245,6 @@ function App() {
               exit={{ opacity: 0, y: -20 }}
             >
               <ListingAssistant />
-            </motion.div>
-          )}
-
-          {activeTab === 'simulator' && (
-            <motion.div
-              key="simulator"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <EarningsSimulator products={products} />
             </motion.div>
           )}
         </AnimatePresence>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wand2, Sparkles, User, ShieldCheck, RefreshCcw, Briefcase, UserCircle, DollarSign, Clock, TrendingUp } from 'lucide-react';
 import axios from 'axios';
@@ -38,6 +38,10 @@ const ListingAssistant = () => {
     const [isAutofilling, setIsAutofilling] = useState(false);
     const [isOptimizingPrice, setIsOptimizingPrice] = useState(false);
     const [isOptimizingTime, setIsOptimizingTime] = useState(false);
+    const [simulation, setSimulation] = useState(null);
+    const [isSimulating, setIsSimulating] = useState(false);
+    const [simulationError, setSimulationError] = useState('');
+    const [simulationNeedsRefresh, setSimulationNeedsRefresh] = useState(false);
     const pricingMode = mode === 'product' ? 'item' : mode === 'service_provider' ? 'service' : 'help';
     const priceFieldLabel = pricingMode === 'service'
         ? 'Your Expected Rate ($)'
@@ -137,6 +141,11 @@ const ListingAssistant = () => {
     const formatCurrency = (value) => Number(value || 0).toLocaleString([], {
         minimumFractionDigits: Number(value || 0) % 1 ? 2 : 0,
         maximumFractionDigits: 2
+    });
+
+    const formatForecastValue = (value) => Number(value || 0).toLocaleString([], {
+        minimumFractionDigits: Number(value || 0) % 1 ? 1 : 0,
+        maximumFractionDigits: 1
     });
 
     // Feature 1: AI Autofill (Mockup)
@@ -295,6 +304,68 @@ const ListingAssistant = () => {
         setIsOptimizingTime(false);
     };
 
+    const fetchSimulationForecast = async () => {
+        const parsedPrice = parseFloat(formData.targetPrice);
+        if (mode !== 'product' || !formData.category || !formData.location || !Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+            return null;
+        }
+
+        const simulatorRes = await axios.post(API.PREDICT_SIMULATOR, {
+            mode: 'item',
+            category: formData.category,
+            location: formData.location,
+            condition: formData.condition || 'New',
+            price: parsedPrice
+        });
+
+        return simulatorRes.data;
+    };
+
+    const handleRunBoostSimulator = async () => {
+        if (!simulatorReady) {
+            alert('Add a category, location, and target price first so Boost Simulator can use your dashboard inputs.');
+            return;
+        }
+
+        setIsSimulating(true);
+        try {
+            const nextSimulation = await fetchSimulationForecast();
+            setSimulation(nextSimulation);
+            setSimulationError('');
+            setSimulationNeedsRefresh(false);
+        } catch (err) {
+            console.error('Boost Simulator Error:', err);
+            setSimulation(null);
+            setSimulationError('Boost Simulator is temporarily unavailable. Check that the backend is running.');
+            setSimulationNeedsRefresh(false);
+        } finally {
+            setIsSimulating(false);
+        }
+    };
+
+    useEffect(() => {
+        if (mode !== 'product') {
+            setSimulation(null);
+            setSimulationError('');
+            setIsSimulating(false);
+            setSimulationNeedsRefresh(false);
+            return undefined;
+        }
+
+        const parsedPrice = parseFloat(formData.targetPrice);
+        if (!formData.category || !formData.location || !Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+            setSimulation(null);
+            setSimulationError('');
+            setIsSimulating(false);
+            setSimulationNeedsRefresh(false);
+            return undefined;
+        }
+
+        setSimulationError('');
+        setSimulationNeedsRefresh(Boolean(simulation));
+        return undefined;
+    }, [mode, formData.category, formData.location, formData.condition, formData.targetPrice]);
+
     const getLiveSuggestions = () => {
         const suggestions = [];
         if (!formData.name) suggestions.push('Enter a clear title to start optimization.');
@@ -325,6 +396,19 @@ const ListingAssistant = () => {
         if (formData.details.length > 50) score += 10;
         return Math.min(score, 100);
     })();
+
+    const parsedTargetPrice = parseFloat(formData.targetPrice);
+    const simulatorReady = mode === 'product'
+        && formData.category
+        && formData.location
+        && Number.isFinite(parsedTargetPrice)
+        && parsedTargetPrice > 0;
+    const simulationConfidencePct = simulation ? Math.round((simulation.confidence ?? 0) * 100) : 0;
+    const simulationConfidenceLabel = simulationConfidencePct >= 80
+        ? 'Strong forecast'
+        : simulationConfidencePct >= 60
+            ? 'Usable forecast'
+            : 'Early signal';
 
     // fetchStrategy removed — replaced by handlePredictPrice + fetchMarketIntelligence
 
@@ -969,6 +1053,155 @@ IMPORTANT: Use the following format EXACTLY:
                             </motion.div>
                         )}
                     </AnimatePresence>
+
+
+                    {mode === 'product' && (
+                        <div className="md:col-span-2 mt-4">
+                            <div className="card-soft p-6 border border-brand-lime border-opacity-30 bg-white">
+                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Sparkles className="w-4 h-4 text-brand-lime" />
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-lime">Boost Simulator</span>
+                                        </div>
+                                        <h5 className="text-lg font-black text-brand-navy">Expected sales and earnings from your current listing setup</h5>
+                                        <p className="text-xs text-text-secondary font-medium mt-1">
+                                            Uses the current price, category, location, and condition from this form when you run it.
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-col items-stretch md:items-end gap-2">
+                                        <button
+                                            onClick={handleRunBoostSimulator}
+                                            disabled={!simulatorReady || isSimulating}
+                                            className={`px-5 py-3 rounded-pill text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                                                simulatorReady && !isSimulating
+                                                    ? 'bg-brand-lime text-brand-navy hover:shadow-glow'
+                                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                            }`}
+                                        >
+                                            {isSimulating ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                                            {simulation ? 'Rerun Boost Simulator' : 'Run Boost Simulator'}
+                                        </button>
+                                        <div className={`px-4 py-2 rounded-pill text-[10px] font-black uppercase tracking-widest text-center ${
+                                            isSimulating
+                                                ? 'bg-brand-navy text-white'
+                                                : simulationNeedsRefresh
+                                                    ? 'bg-amber-100 text-amber-800'
+                                                    : simulation
+                                                        ? 'bg-brand-lime bg-opacity-10 text-brand-navy'
+                                                        : 'bg-brand-gray-bg text-text-secondary'
+                                        }`}>
+                                            {isSimulating
+                                                ? 'Running forecast'
+                                                : simulationNeedsRefresh
+                                                    ? 'Inputs changed'
+                                                    : simulation
+                                                        ? `${simulationConfidenceLabel} • ${simulationConfidencePct}%`
+                                                        : 'Ready to run'}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {!simulatorReady ? (
+                                    <div className="p-4 bg-brand-gray-bg rounded-soft-xl border border-gray-100 text-sm text-text-secondary font-medium">
+                                        Add a category, location, and target price, then click Run Boost Simulator.
+                                    </div>
+                                ) : simulationError ? (
+                                    <div className="p-4 bg-red-50 rounded-soft-xl border border-red-100 text-sm text-red-700 font-medium">
+                                        {simulationError}
+                                    </div>
+                                ) : simulation ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="card-soft p-5 bg-brand-navy text-white flex flex-col justify-between">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <TrendingUp className="w-4 h-4 text-brand-lime" />
+                                                    <span className="text-[9px] font-black uppercase tracking-widest opacity-60">Monthly Sales</span>
+                                                </div>
+                                                <div className="text-3xl font-black">{formatForecastValue(simulation.monthly_sales?.expected)}</div>
+                                                <p className="text-[10px] font-medium opacity-80 mt-2">
+                                                    Range: {formatForecastValue(simulation.monthly_sales?.low)} to {formatForecastValue(simulation.monthly_sales?.high)} / month
+                                                </p>
+                                            </div>
+                                            <div className="mt-5 pt-4 border-t border-white border-opacity-10 text-[10px] font-bold opacity-70">
+                                                {formatForecastValue(simulation.yearly_sales)} / year
+                                            </div>
+                                        </div>
+
+                                        <div className="card-soft p-5 border border-brand-lime flex flex-col justify-between">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <DollarSign className="w-4 h-4 text-brand-lime" />
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-text-secondary">Expected Revenue</span>
+                                                </div>
+                                                <div className="text-3xl font-black text-brand-navy">${formatCurrency(simulation.monthly_revenue)}</div>
+                                                <p className="text-[10px] font-medium text-text-secondary mt-2">
+                                                    ${formatCurrency(simulation.monthly_revenue_range?.low)} to ${formatCurrency(simulation.monthly_revenue_range?.high)} / month
+                                                </p>
+                                            </div>
+                                            <div className="mt-5 pt-4 border-t border-gray-100 text-[10px] font-bold text-text-secondary">
+                                                ${formatCurrency(simulation.yearly_revenue)} / year
+                                            </div>
+                                        </div>
+
+                                        <div className="card-soft p-5 bg-brand-gray-bg flex flex-col justify-between">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <Sparkles className="w-4 h-4 text-brand-navy" />
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-text-secondary">Confidence</span>
+                                                </div>
+                                                <div className="text-3xl font-black text-brand-navy">{simulationConfidencePct}%</div>
+                                                <div className="w-full bg-gray-200 h-1.5 rounded-full mt-3 overflow-hidden">
+                                                    <motion.div initial={{ width: 0 }} animate={{ width: `${simulationConfidencePct}%` }} className="h-full bg-brand-lime" />
+                                                </div>
+                                                <p className="text-[10px] font-medium text-text-secondary mt-3 leading-relaxed">
+                                                    {simulation.explanation}
+                                                </p>
+                                            </div>
+                                            <p className="mt-5 pt-4 border-t border-gray-200 text-[9px] font-bold text-text-secondary">
+                                                {simulation.confidence_basis}
+                                            </p>
+                                        </div>
+
+                                        <div className="md:col-span-3 bg-brand-gray-bg p-5 rounded-soft-xl border border-gray-100 grid grid-cols-1 md:grid-cols-4 gap-4">
+                                            <div>
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-text-secondary mb-1">Forecast Month</p>
+                                                <p className="text-sm font-black text-brand-navy">{simulation.forecast_month}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-text-secondary mb-1">Price Position</p>
+                                                <p className="text-sm font-black text-brand-navy capitalize">{simulation.price_position || 'Unknown'}</p>
+                                                {simulation.benchmark_price != null && (
+                                                    <p className="text-[10px] font-medium text-text-secondary mt-1">
+                                                        Market midpoint: ${formatCurrency(simulation.benchmark_price)}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-text-secondary mb-1">Comparable Scope</p>
+                                                <p className="text-sm font-black text-brand-navy">{simulation.reference_scope}</p>
+                                                <p className="text-[10px] font-medium text-text-secondary mt-1">
+                                                    {simulation.coverage_size || 0} market records
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-text-secondary mb-1">Model Version</p>
+                                                <p className="text-sm font-black text-brand-navy">{simulation.version}</p>
+                                                <p className="text-[10px] font-medium text-text-secondary mt-1">
+                                                    {simulation.fallback_used ? 'Fallback evidence included' : 'Direct model forecast'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="p-4 bg-brand-gray-bg rounded-soft-xl border border-gray-100 text-sm text-text-secondary font-medium flex items-center gap-3">
+                                        <RefreshCcw className="w-4 h-4 animate-spin text-brand-lime" />
+                                        Click Run Boost Simulator to forecast this listing with your current dashboard inputs.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="mt-12 flex flex-col md:flex-row items-center justify-between p-6 bg-brand-gray-bg rounded-soft-xl border border-gray-100">
